@@ -1,0 +1,159 @@
+*{
+    margin: 0;
+
+}
+body{
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 15px;
+    line-height: 1.5em;
+    background-image: url(../media/tudor-baciu-vc3iVL_znJ8-unsplash.jpg);
+    background-repeat: no-repeat;
+    background-size:  cover;
+    background-position: center;
+    background-attachment: fixed;   
+    
+
+
+}
+#container{
+    background-color: rgb(204, 198, 198);
+    margin: 50px auto;
+    overflow: auto;
+    width: 60%;
+    min-height: 500px;
+    border-radius: 25px;
+}
+#header{
+    background-color:#4667d3;
+    height: 100px;
+}
+.media{
+
+    max-width: 100px;
+    max-height: 100px;
+    float:left;
+    margin-left:10%;
+}
+#header h1{
+    width: 70%;
+    color: #fff;
+    font-size: 2vw ;
+    padding: 40px 0 10px 0;
+    text-align: left;
+    margin: 0;
+    white-space: nowrap;
+
+
+}
+
+
+#main{
+    width: 95%;
+    background: #f4f4f4;
+    max-height: 500px;
+    min-height: 200px;
+    margin: 15px auto;
+    overflow: auto;
+    border-radius: 5px;
+
+
+}
+li{
+
+    width:90%;
+    list-style: none;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 10px;
+    background: #f4f4f4;
+
+    line-height: 30px;
+    font-size: 1.5vw;
+    text-align: left;
+    display: block;
+    float: left;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    color: #666;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+}
+li span{
+    color: #aaa;
+
+    font-weight: normal;
+}
+#send{
+    width: 90%;
+    min-height: 70px;
+    margin-left: auto;
+    margin-right: auto;
+
+    padding: 0;
+}
+ .user-box {
+    position: relative;
+  }
+.user-box input {
+    margin-left: 15px;
+    padding: 15px 0;
+    margin: 15px;
+    width: 90%;
+    font-size: 16px;
+    color: #fff;
+    border: none;
+    border-bottom: 1px solid #fff;
+    background: transparent;
+
+  }
+ .user-box label {
+    position: absolute;
+    top:0;
+    left: 15px;
+    padding: 10px 0;
+    font-size: 16px;
+    color: #fff;
+    pointer-events: none;
+    transition: .5s;
+  }
+ .user-box input:focus ~ label, .user-box input:valid ~ label {
+    top: -10px;
+    left: 5px;
+    color: #4667d3;
+    font-size: 12px;
+
+
+  }
+ .send-btn {
+    width: 90%;
+    height: 40px;
+    margin-bottom: 15px;
+    margin-top: 15px;
+    border: none;
+    outline: none;
+    background: white;
+    color: #4667d3;
+    border: #4667d3 solid 3px;
+    border-radius: 5px;
+    font-size: 25px;
+    transition: .5s;
+    letter-spacing: 4px;
+  }
+    .send-btn:hover {
+    background:#4667d3;
+    color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 5px#4667d3,
+                0 0 25px#4667d3,
+                0 0 50px #4667d3,
+                0 0 100px#4667d3;
+            
+  }
+.error{
+    background-color: red;
+    color: white;
+    padding: 5px;
+    margin-bottom: 20px;
+}
