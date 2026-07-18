@@ -27,7 +27,7 @@ $messange = mysqli_query ($con,$query);
 
               <?php while ($row = mysqli_fetch_assoc ($messange) ): ?>
 
-                <li class="messange"><span><?php echo $row['time'] ?> -</span><b><?php echo $row['user'] ?></b>  :  <?php echo $row['message'] ?></li>
+                <li class="messange"><span><?php echo htmlspecialchars($row['time'], ENT_QUOTES, 'UTF-8') ?> -</span><b><?php echo htmlspecialchars($row['user'], ENT_QUOTES, 'UTF-8') ?></b>  :  <?php echo htmlspecialchars($row['message'], ENT_QUOTES, 'UTF-8') ?></li>
              
                 <?php  endwhile; ?>
 
@@ -36,7 +36,7 @@ $messange = mysqli_query ($con,$query);
 
             <div id="send"> 
               <?php if (isset($_GET['error'])): ?>
-                <div class="error"><?php echo $_GET['error'] ?></div>
+                <div class="error"><?php echo htmlspecialchars($_GET['error'], ENT_QUOTES, 'UTF-8') ?></div>
                 <?php endif ;?>
                 <form action="process.php" method="post">
           <div class="user-box">

@@ -1,18 +1,18 @@
 <?php
 include 'database.php';
 if(isset($_POST['submit'])){
-    $user = mysqli_real_escape_string($con, $_POST['user']);
-    $message = mysqli_real_escape_string($con, $_POST['message']);
+    $user = trim($_POST['user'] ?? '');
+    $message = trim($_POST['message'] ?? '');
     date_default_timezone_set('Africa/Tunis');
 $time = date("H:i:s");
 
-
-
-
-    if (!isset($user)|| $user =='' || !isset($message) || $message ==''){
+    if ($user === '' || $message === ''){
         $error = 'please fill in your name and your message';
         header("Location:index.php?error=".urlencode($error));
+        exit();
      } else{
+        $user = mysqli_real_escape_string($con, $user);
+        $message = mysqli_real_escape_string($con, $message);
         $query = "INSERT INTO messange (user, message, time)
          VALUES ('$user', '$message', '$time')";
          if(!mysqli_query($con, $query)){
