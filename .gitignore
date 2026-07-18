@@ -1,3 +1,7 @@
+# Configuration locale : identifiants propres a chaque installation.
+# Le modele versionne est config.example.php
+config.php
+
 # IDE
 .idea/
 .vscode/
