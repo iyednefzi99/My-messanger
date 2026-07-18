@@ -5,7 +5,7 @@ require_login();
 
 // Les messages anterieurs a l'authentification n'ont pas de user_id :
 // on retombe sur l'ancienne colonne `user` pour les afficher.
-$query = "SELECT m.time, m.message, COALESCE(u.username, m.user) AS author
+$query = "SELECT m.id, m.time, m.message, COALESCE(u.username, m.user) AS author
           FROM messange m
           LEFT JOIN users u ON m.user_id = u.id
           ORDER BY m.id";
@@ -42,7 +42,7 @@ $messange = mysqli_query ($con,$query);
 
               <?php while ($row = mysqli_fetch_assoc ($messange) ): ?>
 
-                <li class="messange"><span><?php echo htmlspecialchars($row['time'], ENT_QUOTES, 'UTF-8') ?> -</span><b><?php echo htmlspecialchars($row['author'], ENT_QUOTES, 'UTF-8') ?></b>  :  <?php echo htmlspecialchars($row['message'], ENT_QUOTES, 'UTF-8') ?></li>
+                <li class="messange" data-id="<?php echo (int) $row['id'] ?>"><span><?php echo htmlspecialchars($row['time'], ENT_QUOTES, 'UTF-8') ?> -</span><b><?php echo htmlspecialchars($row['author'], ENT_QUOTES, 'UTF-8') ?></b>  :  <?php echo htmlspecialchars($row['message'], ENT_QUOTES, 'UTF-8') ?></li>
 
                 <?php  endwhile; ?>
 
@@ -65,6 +65,6 @@ $messange = mysqli_query ($con,$query);
 
         </div>
 
-
+        <script src="js/script.js"></script>
     </body>
 </html>
