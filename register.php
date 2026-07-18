@@ -26,31 +26,29 @@ if (isset($_POST['submit'])) {
     }
 
     $query = "INSERT INTO users (username, password_hash, created_at) VALUES (?, ?, NOW())";
-    $stmt  = mysqli_prepare($con, $query);
-    if (!$stmt) {
-        error_log('Prepare failed: ' . mysqli_error($con));
+    $hash  = password_hash($password, PASSWORD_DEFAULT);
+
+    // On laisse la contrainte UNIQUE trancher plutot que de faire un SELECT
+    // prealable : entre la verification et l'insertion, deux inscriptions
+    // simultanees passeraient toutes les deux.
+    try {
+        $stmt = mysqli_prepare($con, $query);
+        mysqli_stmt_bind_param($stmt, 'ss', $username, $hash);
+        mysqli_stmt_execute($stmt);
+        $id = mysqli_stmt_insert_id($stmt);
+        mysqli_stmt_close($stmt);
+    } catch (mysqli_sql_exception $e) {
+        // 1062 = violation de la contrainte UNIQUE sur username.
+        if ($e->getCode() === 1062) {
+            redirect_error('register.php', 'This username is already taken.');
+        }
+        error_log('Insert user failed: ' . $e->getMessage());
         redirect_error('register.php', 'Service unavailable, please try again later.');
     }
 
-    $hash = password_hash($password, PASSWORD_DEFAULT);
-    mysqli_stmt_bind_param($stmt, 'ss', $username, $hash);
-
-    if (mysqli_stmt_execute($stmt)) {
-        $id = mysqli_stmt_insert_id($stmt);
-        mysqli_stmt_close($stmt);
-        login_user($id, $username);
-        header('Location: index.php');
-        exit();
-    }
-
-    // 1062 = violation de la contrainte UNIQUE sur username.
-    $errno = mysqli_stmt_errno($stmt);
-    mysqli_stmt_close($stmt);
-    if ($errno === 1062) {
-        redirect_error('register.php', 'This username is already taken.');
-    }
-    error_log('Insert user failed: ' . $errno);
-    redirect_error('register.php', 'Service unavailable, please try again later.');
+    login_user($id, $username);
+    header('Location: index.php');
+    exit();
 }
 ?>
 <!doctype html>
