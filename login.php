@@ -19,6 +19,16 @@ if (isset($_POST['submit'])) {
         redirect_error('login.php', 'Please fill in your username and password.');
     }
 
+    $ip = client_ip();
+    purge_old_login_attempts($con);
+
+    // Verifie le quota avant de toucher au mot de passe : inutile de faire
+    // travailler password_verify() pour une tentative deja bloquee.
+    $lockout = login_lockout_minutes($con, $username, $ip);
+    if ($lockout > 0) {
+        redirect_error('login.php', 'Too many failed attempts. Please try again in ' . $lockout . ' minute(s).');
+    }
+
     $query = "SELECT id, username, password_hash FROM users WHERE username = ?";
     $stmt  = mysqli_prepare($con, $query);
     if (!$stmt) {
@@ -34,9 +44,11 @@ if (isset($_POST['submit'])) {
     // "utilisateur inconnu" de "mauvais mot de passe" permettrait d'enumerer
     // les comptes existants.
     if (!$user || !password_verify($password, $user['password_hash'])) {
+        record_failed_login($con, $username, $ip);
         redirect_error('login.php', 'Incorrect username or password.');
     }
 
+    clear_login_attempts($con, $username);
     login_user($user['id'], $user['username']);
     header('Location: index.php');
     exit();
