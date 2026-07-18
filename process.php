@@ -11,13 +11,17 @@ $time = date("H:i:s");
         header("Location:index.php?error=".urlencode($error));
         exit();
      } else{
-        $user = mysqli_real_escape_string($con, $user);
-        $message = mysqli_real_escape_string($con, $message);
         $query = "INSERT INTO messange (user, message, time)
-         VALUES ('$user', '$message', '$time')";
-         if(!mysqli_query($con, $query)){
+         VALUES (?, ?, ?)";
+        $stmt = mysqli_prepare($con, $query);
+        if(!$stmt){
             die('ERROR:' .mysqli_error($con));
+        }
+        mysqli_stmt_bind_param($stmt, 'sss', $user, $message, $time);
+        if(!mysqli_stmt_execute($stmt)){
+            die('ERROR:' .mysqli_stmt_error($stmt));
         }else{
+            mysqli_stmt_close($stmt);
             header("Location: index.php");
             exit();
         }
