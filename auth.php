@@ -126,10 +126,15 @@ function purge_old_login_attempts($con) {
 // Renvoie le nombre de minutes de blocage restantes, ou 0 si la tentative
 // est autorisee.
 function login_lockout_minutes($con, $username, $ip) {
+    // Le reste a courir est calcule par MySQL. Le lire via strtotime() cote
+    // PHP reinterpreterait la chaine dans le fuseau de PHP, qui n'est pas
+    // forcement celui du serveur SQL : un decalage d'une heure suffit a
+    // annoncer n'importe quoi a l'utilisateur.
     $query = "SELECT
                 SUM(username = ?) AS by_user,
                 SUM(ip = ?)       AS by_ip,
-                MIN(attempted_at) AS oldest
+                CEIL(TIMESTAMPDIFF(SECOND, NOW(),
+                     MIN(attempted_at) + INTERVAL " . LOGIN_WINDOW_MINUTES . " MINUTE) / 60) AS remaining
               FROM login_attempts
               WHERE (username = ? OR ip = ?)
                 AND attempted_at > DATE_SUB(NOW(), INTERVAL " . LOGIN_WINDOW_MINUTES . " MINUTE)";
@@ -145,15 +150,14 @@ function login_lockout_minutes($con, $username, $ip) {
     $row = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
     mysqli_stmt_close($stmt);
 
-    if (!$row || $row['oldest'] === null) {
+    if (!$row || $row['remaining'] === null) {
         return 0;
     }
     if ((int) $row['by_user'] < LOGIN_MAX_PER_USER && (int) $row['by_ip'] < LOGIN_MAX_PER_IP) {
         return 0;
     }
 
-    // Le blocage expire quand la plus ancienne tentative sort de la fenetre.
-    $elapsed   = (time() - strtotime($row['oldest'])) / 60;
-    $remaining = (int) ceil(LOGIN_WINDOW_MINUTES - $elapsed);
-    return max($remaining, 1);
+    // Plancher a 1 : la derniere seconde de blocage doit rester un blocage,
+    // pas un « reessayez dans 0 minute ».
+    return max((int) $row['remaining'], 1);
 }
