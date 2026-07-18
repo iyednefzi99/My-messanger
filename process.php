@@ -1,25 +1,36 @@
 <?php
+include 'auth.php';
 include 'database.php';
+require_login();
+
 if(isset($_POST['submit'])){
-    $user = trim($_POST['user'] ?? '');
+    if (!csrf_check($_POST['csrf_token'] ?? '')) {
+        redirect_error('index.php', 'Invalid session, please try again.');
+    }
+
+    // L'auteur vient de la session, jamais du formulaire : sinon n'importe
+    // qui pourrait poster sous le nom d'un autre.
+    $user_id = current_user_id();
+    $user    = current_username();
     $message = trim($_POST['message'] ?? '');
     date_default_timezone_set('Africa/Tunis');
 $time = date("H:i:s");
 
-    if ($user === '' || $message === ''){
-        $error = 'please fill in your name and your message';
-        header("Location:index.php?error=".urlencode($error));
-        exit();
+    if ($message === ''){
+        redirect_error('index.php', 'please fill in your message');
      } else{
-        $query = "INSERT INTO messange (user, message, time)
-         VALUES (?, ?, ?)";
+        $query = "INSERT INTO messange (user_id, user, message, time)
+         VALUES (?, ?, ?, ?)";
         $stmt = mysqli_prepare($con, $query);
         if(!$stmt){
-            die('ERROR:' .mysqli_error($con));
+            error_log('Prepare failed: ' . mysqli_error($con));
+            redirect_error('index.php', 'Service unavailable, please try again later.');
         }
-        mysqli_stmt_bind_param($stmt, 'sss', $user, $message, $time);
+        mysqli_stmt_bind_param($stmt, 'isss', $user_id, $user, $message, $time);
         if(!mysqli_stmt_execute($stmt)){
-            die('ERROR:' .mysqli_stmt_error($stmt));
+            error_log('Insert message failed: ' . mysqli_stmt_error($stmt));
+            mysqli_stmt_close($stmt);
+            redirect_error('index.php', 'Service unavailable, please try again later.');
         }else{
             mysqli_stmt_close($stmt);
             header("Location: index.php");

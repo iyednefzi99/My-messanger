@@ -1,6 +1,14 @@
+<?php include 'auth.php' ; ?>
 <?php include 'database.php' ; ?>
 <?php
-$query = "SELECT * FROM messange ";
+require_login();
+
+// Les messages anterieurs a l'authentification n'ont pas de user_id :
+// on retombe sur l'ancienne colonne `user` pour les afficher.
+$query = "SELECT m.time, m.message, COALESCE(u.username, m.user) AS author
+          FROM messange m
+          LEFT JOIN users u ON m.user_id = u.id
+          ORDER BY m.id";
 $messange = mysqli_query ($con,$query);
 ?>
 <!doctype html>
@@ -19,30 +27,34 @@ $messange = mysqli_query ($con,$query);
                 <img class="media" src="media/icons8-facebook-messenger-100.png" alt="MESSANGER" >
                     <h1>Welcome to my MESSANGER</h1>
 
+                    <div id="session-bar">
+                      <span>Logged in as <b><?php echo htmlspecialchars(current_username(), ENT_QUOTES, 'UTF-8') ?></b></span>
+                      <form action="logout.php" method="post">
+                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
+                        <input type="submit" class="logout-btn" value="Log out">
+                      </form>
+                    </div>
                 </div>
-                   
-            
+
+
             <div id="main">
               <ul>
 
               <?php while ($row = mysqli_fetch_assoc ($messange) ): ?>
 
-                <li class="messange"><span><?php echo htmlspecialchars($row['time'], ENT_QUOTES, 'UTF-8') ?> -</span><b><?php echo htmlspecialchars($row['user'], ENT_QUOTES, 'UTF-8') ?></b>  :  <?php echo htmlspecialchars($row['message'], ENT_QUOTES, 'UTF-8') ?></li>
-             
+                <li class="messange"><span><?php echo htmlspecialchars($row['time'], ENT_QUOTES, 'UTF-8') ?> -</span><b><?php echo htmlspecialchars($row['author'], ENT_QUOTES, 'UTF-8') ?></b>  :  <?php echo htmlspecialchars($row['message'], ENT_QUOTES, 'UTF-8') ?></li>
+
                 <?php  endwhile; ?>
 
               </ul>
             </div>
 
-            <div id="send"> 
+            <div id="send">
               <?php if (isset($_GET['error'])): ?>
                 <div class="error"><?php echo htmlspecialchars($_GET['error'], ENT_QUOTES, 'UTF-8') ?></div>
                 <?php endif ;?>
                 <form action="process.php" method="post">
-          <div class="user-box">
-            <input type="text" name="user">
-            <label>Enter your name</label>
-          </div>
+          <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
           <div class="user-box">
             <input type="text" name="message" >
             <label>Enter your message</label>
@@ -50,8 +62,9 @@ $messange = mysqli_query ($con,$query);
                 <input type="submit" name="submit" class="send-btn"  value="Send">
             </form>
             </div>
- 
+
         </div>
 
-            
+
     </body>
+</html>
