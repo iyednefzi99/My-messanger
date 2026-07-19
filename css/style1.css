@@ -1,6 +1,6 @@
 *{
     margin: 0;
-
+    box-sizing: border-box;
 }
 body{
     font-family: Verdana, Geneva, Tahoma, sans-serif;
@@ -8,55 +8,58 @@ body{
     line-height: 1.5em;
     background-image: url(../media/tudor-baciu-vc3iVL_znJ8-unsplash.jpg);
     background-repeat: no-repeat;
-    background-size:  cover;
+    background-size: cover;
     background-position: center;
-    background-attachment: fixed;   
-    
-
-
+    background-attachment: fixed;
+    min-height: 100vh;
 }
+
+/* Carte centree sur grand ecran, bornee en hauteur pour que la liste des
+   messages defile a l'interieur plutot que la page entiere. */
 #container{
     background-color: rgb(204, 198, 198);
-    margin: 50px auto;
-    overflow: auto;
-    width: 60%;
-    min-height: 500px;
+    margin: 40px auto;
+    width: 90%;
+    max-width: 800px;
+    max-height: calc(100vh - 80px);
     border-radius: 25px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
+
+/* Entete en flex : logo, titre et barre de session s'alignent et passent a
+   la ligne sur petit ecran au lieu de se chevaucher (l'ancien float + la
+   position absolue se superposaient sous ~700px). */
 #header{
-    background-color:#4667d3;
-    height: 100px;
-    position: relative;
+    background-color: #4667d3;
+    padding: 15px 25px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px 15px;
+    flex-shrink: 0;
 }
 .media{
-
-    max-width: 100px;
-    max-height: 100px;
-    float:left;
-    margin-left:10%;
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
 }
 #header h1{
-    width: 70%;
+    flex: 1 1 200px;
     color: #fff;
-    font-size: 2vw ;
-    padding: 40px 0 10px 0;
-    text-align: left;
+    font-size: clamp(1.1rem, 2.4vw, 1.6rem);
     margin: 0;
-    white-space: nowrap;
-
-
+    line-height: 1.2;
 }
 
-
 #session-bar{
-    position: absolute;
-    top: 15px;
-    right: 25px;
     display: flex;
     align-items: center;
     gap: 12px;
     color: #fff;
     font-size: 13px;
+    margin-left: auto;
 }
 #session-bar form{
     margin: 0;
@@ -85,113 +88,129 @@ body{
     color: #4667d3;
 }
 
+/* Zone defilante des messages : occupe l'espace disponible entre l'entete
+   et le composeur. */
 #main{
-    width: 95%;
+    flex: 1 1 auto;
     background: #f4f4f4;
-    max-height: 500px;
-    min-height: 200px;
-    margin: 15px auto;
-    overflow: auto;
+    min-height: 150px;
+    margin: 15px;
+    overflow-y: auto;
     border-radius: 5px;
-
-
 }
-li{
-
-    width:90%;
+#main ul{
     list-style: none;
     padding: 10px;
+}
+.messange{
+    padding: 10px 12px;
     border-bottom: 1px solid #ccc;
     margin-bottom: 10px;
-    background: #f4f4f4;
-
-    line-height: 30px;
-    font-size: 1.5vw;
+    background: #fff;
+    line-height: 1.5;
+    font-size: 0.95rem;
     text-align: left;
-    display: block;
-    float: left;
-    margin-right: 10px;
-    margin-bottom: 10px;
     border-radius: 5px;
-    color: #666;
-    overflow: hidden;
-    text-overflow: ellipsis;
-
+    color: #444;
+    /* Casse les chaines longues (URL collee) au lieu de deborder ; l'ancien
+       overflow:hidden + ellipsis tronquait les messages un peu longs. */
+    overflow-wrap: break-word;
 }
-li span{
-    color: #aaa;
-
+.messange span{
+    color: #999;
     font-weight: normal;
 }
-#send{
-    width: 90%;
-    min-height: 70px;
-    margin-left: auto;
-    margin-right: auto;
-
-    padding: 0;
+.messange b{
+    color: #4667d3;
 }
- .user-box {
-    position: relative;
-  }
-.user-box input {
-    margin-left: 15px;
-    padding: 15px 0;
-    margin: 15px;
-    width: 90%;
-    font-size: 16px;
-    color: #fff;
-    border: none;
-    border-bottom: 1px solid #fff;
-    background: transparent;
 
-  }
- .user-box label {
-    position: absolute;
-    top:0;
-    left: 15px;
-    padding: 10px 0;
+/* Composeur : reste en bas, ne se comprime pas. */
+#send{
+    flex-shrink: 0;
+    padding: 0 15px;
+}
+.user-box{
+    position: relative;
+}
+.user-box input{
+    padding: 15px 0;
+    margin: 15px 0;
+    width: 100%;
     font-size: 16px;
-    color: #fff;
+    color: #333;
+    border: none;
+    border-bottom: 1px solid #4667d3;
+    background: transparent;
+}
+.user-box input:focus{
+    outline: none;
+}
+.user-box label{
+    position: absolute;
+    top: 15px;
+    left: 0;
+    font-size: 16px;
+    color: #777;
     pointer-events: none;
-    transition: .5s;
-  }
- .user-box input:focus ~ label, .user-box input:valid ~ label {
-    top: -10px;
-    left: 5px;
+    transition: .3s;
+}
+.user-box input:focus ~ label,
+.user-box input:valid ~ label{
+    top: -2px;
     color: #4667d3;
     font-size: 12px;
-
-
-  }
- .send-btn {
-    width: 90%;
-    height: 40px;
-    margin-bottom: 15px;
-    margin-top: 15px;
-    border: none;
+}
+.send-btn{
+    width: 100%;
+    padding: 10px;
+    margin: 15px 0;
+    border: #4667d3 solid 3px;
     outline: none;
     background: white;
     color: #4667d3;
-    border: #4667d3 solid 3px;
     border-radius: 5px;
-    font-size: 25px;
-    transition: .5s;
-    letter-spacing: 4px;
-  }
-    .send-btn:hover {
-    background:#4667d3;
+    font-size: clamp(1rem, 2.5vw, 1.4rem);
+    transition: .3s;
+    letter-spacing: 3px;
+    cursor: pointer;
+}
+.send-btn:hover{
+    background: #4667d3;
     color: #fff;
-    border-radius: 5px;
-    box-shadow: 0 0 5px#4667d3,
-                0 0 25px#4667d3,
-                0 0 50px #4667d3,
-                0 0 100px#4667d3;
-            
-  }
+    box-shadow: 0 0 5px #4667d3, 0 0 20px #4667d3;
+}
 .error{
-    background-color: red;
+    background-color: #d9342b;
     color: white;
-    padding: 5px;
-    margin-bottom: 20px;
+    padding: 8px 12px;
+    margin: 15px;
+    border-radius: 5px;
+}
+
+/* Telephone : la carte occupe tout l'ecran, sans marge ni coins arrondis,
+   et prend toute la hauteur pour un usage type application de messagerie. */
+@media (max-width: 600px){
+    body{
+        /* background-attachment: fixed est bogue sur Safari iOS. */
+        background-attachment: scroll;
+    }
+    #container{
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        min-height: 100vh;
+        max-height: none;
+        height: 100vh;
+        border-radius: 0;
+    }
+    #header{
+        padding: 12px 15px;
+    }
+    .media{
+        width: 48px;
+        height: 48px;
+    }
+    #main{
+        margin: 10px;
+    }
 }

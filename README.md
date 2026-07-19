@@ -1,7 +1,8 @@
 # MESSANGER
 
 Messagerie web minimaliste : un mur de discussion partage, avec comptes,
-sessions et rafraichissement des messages sans rechargement de page.
+sessions, rafraichissement des messages sans rechargement de page et une
+interface adaptee au mobile.
 
 Stack : PHP 8 (mysqli procedural, sans framework), MySQL / MariaDB, JavaScript
 sans dependance. Concu pour tourner sur un stack XAMPP / WAMP.
@@ -128,5 +129,4 @@ Ce projet fonctionne mais n'est pas pret pour un usage public en l'etat :
 
 - L'envoi d'un message recharge la page ; seule la reception est en temps reel.
 - `index.php` charge toute la conversation au premier rendu (pas de pagination).
-- L'interface n'est pas responsive.
 - Pas de recuperation de mot de passe ni d'expiration de session par inactivite.

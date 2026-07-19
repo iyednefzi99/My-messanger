@@ -16,6 +16,7 @@ $messange = mysqli_query ($con,$query);
     <head>
         <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>MESSANGER</title>
         <link rel="icon" href="media/icons8-facebook-messenger-144.png" type="image/png">
         <link rel="stylesheet" href="css/style1.css">

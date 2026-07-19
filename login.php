@@ -58,6 +58,7 @@ if (isset($_POST['submit'])) {
 <html>
     <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>MESSANGER - Log in</title>
         <link rel="icon" href="media/icons8-facebook-messenger-144.png" type="image/png">
         <link rel="stylesheet" href="css/style1.css">
