@@ -1,6 +1,6 @@
 <?php
-include 'auth.php';
-include 'database.php';
+include __DIR__ . '/../src/auth.php';
+include __DIR__ . '/../src/database.php';
 
 // Deux clients possibles : le formulaire classique, qui attend une
 // redirection, et js/script.js, qui attend du JSON. La page reste

@@ -28,11 +28,11 @@ Les identifiants de base ne sont pas dans le depot. Copier le modele et
 l'adapter :
 
 ```sh
-cp config.example.php config.php
+cp config/config.example.php config/config.php
 ```
 
-`config.php` (ignore par git) contient les identifiants MySQL et le fuseau
-horaire, applique a la fois a PHP et a MySQL :
+`config/config.php` (ignore par git) contient les identifiants MySQL et le
+fuseau horaire, applique a la fois a PHP et a MySQL :
 
 ```php
 return [
@@ -61,29 +61,48 @@ dans la table `schema_migrations` (voir la section Migrations).
 
 ### 3. Lancer
 
+**La racine web est `public/`, jamais la racine du projet.** C'est ce qui
+garde `config/` et `src/` hors d'atteinte du navigateur.
+
 Avec le serveur integre de PHP, depuis la racine du projet :
 
 ```sh
-php -S localhost:8000
+php -S localhost:8000 -t public
 ```
 
-Puis ouvrir http://localhost:8000/register.php pour creer un compte. Sous
-XAMPP/Apache, placer le projet dans `htdocs/` et ouvrir l'URL correspondante.
+Puis ouvrir http://localhost:8000/register.php pour creer un compte.
+
+Sous XAMPP/Apache, faire pointer le `DocumentRoot` (ou l'alias du vhost) sur
+le sous-dossier `public/`. A defaut, le projet reste accessible via
+`http://localhost/My-messanger/public/`, mais les dossiers `config/`, `src/`
+et `db/` se retrouvent alors sous la racine web : ils embarquent chacun un
+`.htaccess` qui en refuse l'acces, ce qui suppose qu'Apache lise les
+`.htaccess` (`AllowOverride`). Pointer la racine sur `public/` reste la
+configuration sure.
 
 ## Structure
 
-| Fichier | Role |
-|---|---|
-| `index.php` | Mur des messages + formulaire d'envoi (protege par session) |
-| `register.php` / `login.php` / `logout.php` | Comptes et sessions |
-| `process.php` | Reception d'un message poste (Post-Redirect-Get) |
-| `messages.php` | Endpoint JSON incrementiel interroge par le client |
-| `auth.php` | Bootstrap de session, CSRF, limitation des tentatives, constantes |
-| `database.php` | Connexion, fuseau horaire, gestion des exceptions mysqli |
-| `config.php` | Identifiants locaux (hors depot) |
-| `migrate.php` | Applicateur de migrations (CLI) |
-| `js/script.js` | Rafraichissement des messages par interrogation periodique |
-| `db/` | Schema de depart et migrations |
+```
+My-messanger/
+├── public/                 <- racine web : seul dossier expose
+│   ├── index.php           mur des messages + composeur (protege par session)
+│   ├── register.php / login.php / logout.php
+│   ├── process.php         reception d'un message (redirection ou JSON)
+│   ├── messages.php        endpoint JSON incrementiel du client
+│   └── css/ js/ media/
+├── src/
+│   ├── auth.php            sessions, CSRF, limitations, constantes
+│   └── database.php        connexion, fuseau, exceptions mysqli
+├── config/
+│   ├── config.php          identifiants locaux (hors depot)
+│   └── config.example.php  modele a copier
+├── db/                     schema de depart et migrations
+├── migrate.php             applicateur de migrations (CLI)
+└── README.md
+```
+
+`config/`, `src/` et `db/` sont hors de la racine web : leur contenu n'est
+jamais servi au navigateur.
 
 ## Migrations
 
@@ -104,7 +123,7 @@ la main avant de relancer.
 
 ## Reglages
 
-Dans `auth.php` :
+Dans `src/auth.php` :
 
 - `MESSAGE_MAX_LENGTH` — longueur maximale d'un message (2000 caracteres)
 - `LOGIN_WINDOW_MINUTES` / `LOGIN_MAX_PER_USER` / `LOGIN_MAX_PER_IP` —
@@ -118,8 +137,8 @@ Ce projet fonctionne mais n'est pas pret pour un usage public en l'etat :
 
 - **Identifiants** : creer un utilisateur MySQL dedie avec mot de passe et
   droits limites a la base `messanger`, plutot que `root` sans mot de passe.
-- **`config.php` hors racine web** : le placer au-dessus du dossier servi, pour
-  qu'une defaillance de la configuration PHP ne puisse pas l'exposer en clair.
+- **Racine web sur `public/`** : verifier que le serveur sert bien ce
+  sous-dossier et non la racine du projet (voir Installation, etape 3).
 - **HTTPS** : le cookie de session ne passe en `Secure` que derriere HTTPS.
 - **La limitation par IP se fie a `REMOTE_ADDR`** : derriere un reverse proxy,
   il faudra lire `X-Forwarded-For`, mais seulement s'il vient d'un proxy de
@@ -127,6 +146,5 @@ Ce projet fonctionne mais n'est pas pret pour un usage public en l'etat :
 
 ## Limites connues
 
-- L'envoi d'un message recharge la page ; seule la reception est en temps reel.
 - `index.php` charge toute la conversation au premier rendu (pas de pagination).
 - Pas de recuperation de mot de passe ni d'expiration de session par inactivite.

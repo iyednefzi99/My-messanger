@@ -1,0 +1,9 @@
+# Normalise les fins de ligne dans le depot (LF), tout en laissant chaque
+# poste de travail utiliser les siennes. Sans ce reglage, un aller-retour
+# entre Windows et Linux produit des diffs touchant des fichiers entiers.
+* text=auto
+
+# Fichiers binaires : jamais de conversion.
+*.png binary
+*.jpg binary
+*.ico binary

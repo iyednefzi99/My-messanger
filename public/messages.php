@@ -4,8 +4,8 @@
 // uniquement ce que le client n'a pas encore : le polling ne retelecharge
 // pas toute la conversation a chaque tour.
 
-include 'auth.php';
-include 'database.php';
+include __DIR__ . '/../src/auth.php';
+include __DIR__ . '/../src/database.php';
 
 header('Content-Type: application/json; charset=utf-8');
 // Reponse propre a chaque appel : sans ca, un proxy ou le cache navigateur

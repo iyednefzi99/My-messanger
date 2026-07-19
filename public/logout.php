@@ -1,5 +1,5 @@
 <?php
-include 'auth.php';
+include __DIR__ . '/../src/auth.php';
 
 // Deconnexion en POST uniquement : en GET, n'importe quelle balise <img>
 // pointant ici deconnecterait l'utilisateur a son insu.

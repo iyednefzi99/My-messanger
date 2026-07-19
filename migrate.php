@@ -24,9 +24,9 @@ if (!in_array($mode, ['--apply', '--status', '--baseline'], true)) {
     exit(2);
 }
 
-$config_file = __DIR__ . '/config.php';
+$config_file = __DIR__ . '/config/config.php';
 if (!is_file($config_file)) {
-    fwrite(STDERR, "config.php introuvable (copier config.example.php en config.php)\n");
+    fwrite(STDERR, "config/config.php introuvable (copier config/config.example.php en config/config.php)\n");
     exit(1);
 }
 $config = require $config_file;

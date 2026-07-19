@@ -15,11 +15,13 @@ set_exception_handler(function ($e) {
     die('Service unavailable, please try again later.');
 });
 
-// Les identifiants vivent dans config.php, hors du depot : les versionner
-// obligerait chaque installation a partager ceux de la machine d'origine.
-$config_file = __DIR__ . '/config.php';
+// Les identifiants vivent dans config/config.php, hors du depot et hors de
+// la racine web : les versionner obligerait chaque installation a partager
+// ceux de la machine d'origine, et les servir depuis public/ les exposerait
+// si la configuration PHP venait a defaillir.
+$config_file = __DIR__ . '/../config/config.php';
 if (!is_file($config_file)) {
-    error_log('Missing config.php (copy config.example.php to config.php)');
+    error_log('Missing config/config.php (copy config/config.example.php to config/config.php)');
     http_response_code(503);
     die('Service unavailable, please try again later.');
 }

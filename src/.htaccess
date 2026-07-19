@@ -1,0 +1,10 @@
+# Filet de securite : ce dossier ne doit jamais etre servi par le web.
+# En fonctionnement normal la racine web est public/, donc ce fichier ne
+# sert a rien ; il protege le cas ou la racine serait mal configuree.
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+</IfModule>

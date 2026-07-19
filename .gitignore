@@ -1,6 +1,6 @@
 # Configuration locale : identifiants propres a chaque installation.
-# Le modele versionne est config.example.php
-config.php
+# Le modele versionne est config/config.example.php
+config/config.php
 
 # IDE
 .idea/

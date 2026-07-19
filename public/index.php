@@ -1,5 +1,5 @@
-<?php include 'auth.php' ; ?>
-<?php include 'database.php' ; ?>
+<?php include __DIR__ . '/../src/auth.php' ; ?>
+<?php include __DIR__ . '/../src/database.php' ; ?>
 <?php
 require_login();
 

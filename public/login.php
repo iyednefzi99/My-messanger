@@ -1,6 +1,6 @@
 <?php
-include 'auth.php';
-include 'database.php';
+include __DIR__ . '/../src/auth.php';
+include __DIR__ . '/../src/database.php';
 
 if (is_logged_in()) {
     header('Location: index.php');
