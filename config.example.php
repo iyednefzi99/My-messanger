@@ -13,4 +13,7 @@ return [
         'pass' => '',
         'name' => 'messanger',
     ],
+    // Fuseau applique a la fois a PHP et a MySQL. Un identifiant de la base
+    // de fuseaux PHP : https://www.php.net/manual/fr/timezones.php
+    'timezone' => 'Africa/Tunis',
 ];

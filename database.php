@@ -25,11 +25,23 @@ if (!is_file($config_file)) {
 }
 
 $config = require $config_file;
-if (!isset($config['db']['host'], $config['db']['user'], $config['db']['pass'], $config['db']['name'])) {
-    error_log('config.php is incomplete: expected db.host, db.user, db.pass and db.name');
+if (!isset($config['db']['host'], $config['db']['user'], $config['db']['pass'], $config['db']['name'], $config['timezone'])) {
+    error_log('config.php is incomplete: expected db.host, db.user, db.pass, db.name and timezone');
     http_response_code(503);
     die('Service unavailable, please try again later.');
 }
+
+// Fuseau horaire : une seule source de verite, appliquee a PHP et a MySQL.
+// Les laisser diverger a deja produit un bug (583de67) : une date ecrite
+// par l'un et relue par l'autre se decalait d'une heure sans rien signaler.
+try {
+    $timezone = new DateTimeZone($config['timezone']);
+} catch (Exception $e) {
+    error_log('Invalid timezone in config.php: ' . $config['timezone']);
+    http_response_code(503);
+    die('Service unavailable, please try again later.');
+}
+date_default_timezone_set($config['timezone']);
 
 try {
     $con = mysqli_connect(
@@ -43,3 +55,10 @@ try {
     http_response_code(503);
     die('Service unavailable, please try again later.');
 }
+
+// Decalage numerique plutot que le nom du fuseau : les tables de fuseaux de
+// MySQL ne sont pas peuplees par defaut sous XAMPP, et « SET time_zone =
+// 'Africa/Tunis' » y echouerait. Le decalage est recalcule a chaque
+// connexion, ce qui suit les changements d'heure saisonniers.
+$offset = (new DateTime('now', $timezone))->format('P');
+mysqli_query($con, "SET time_zone = '" . $offset . "'");

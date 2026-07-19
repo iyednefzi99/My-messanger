@@ -13,8 +13,8 @@ if(isset($_POST['submit'])){
     $user_id = current_user_id();
     $user    = current_username();
     $message = trim($_POST['message'] ?? '');
-    date_default_timezone_set('Africa/Tunis');
-$time = date("H:i:s");
+    // Le fuseau est fixe une seule fois dans database.php, via config.php.
+    $time = date("H:i:s");
 
     if ($message === ''){
         redirect_error('index.php', 'please fill in your message');
