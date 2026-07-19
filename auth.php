@@ -2,6 +2,12 @@
 // Bootstrap de session + helpers d'authentification.
 // A inclure avant toute sortie HTML.
 
+// Longueur maximale d'un message, en caracteres. La colonne `message` est
+// un TEXT (~65000 octets) : sans plafond applicatif, un seul envoi peut
+// remplir l'ecran de tout le monde. Partagee entre la validation cote
+// serveur (process.php) et l'attribut maxlength du formulaire (index.php).
+const MESSAGE_MAX_LENGTH = 2000;
+
 if (session_status() === PHP_SESSION_NONE) {
     session_set_cookie_params([
         'httponly' => true,

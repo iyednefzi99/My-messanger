@@ -18,6 +18,9 @@ if(isset($_POST['submit'])){
 
     if ($message === ''){
         redirect_error('index.php', 'please fill in your message');
+     } elseif (mb_strlen($message) > MESSAGE_MAX_LENGTH){
+        // maxlength cote client peut etre contourne : on revalide ici.
+        redirect_error('index.php', 'Message too long (max ' . MESSAGE_MAX_LENGTH . ' characters).');
      } else{
         $query = "INSERT INTO messange (user_id, user, message, time)
          VALUES (?, ?, ?, ?)";

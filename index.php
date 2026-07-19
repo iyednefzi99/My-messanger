@@ -56,7 +56,7 @@ $messange = mysqli_query ($con,$query);
                 <form action="process.php" method="post">
           <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
           <div class="user-box">
-            <input type="text" name="message" >
+            <input type="text" name="message" maxlength="<?php echo MESSAGE_MAX_LENGTH ?>">
             <label>Enter your message</label>
           </div>
                 <input type="submit" name="submit" class="send-btn"  value="Send">
