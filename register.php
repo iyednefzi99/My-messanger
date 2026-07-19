@@ -12,6 +12,13 @@ if (isset($_POST['submit'])) {
         redirect_error('register.php', 'Invalid session, please try again.');
     }
 
+    $ip = client_ip();
+    purge_old_registration_attempts($con);
+    $lockout = registration_lockout_minutes($con, $ip);
+    if ($lockout > 0) {
+        redirect_error('register.php', 'Too many accounts created from here. Please try again in ' . $lockout . ' minute(s).');
+    }
+
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
 
@@ -24,6 +31,10 @@ if (isset($_POST['submit'])) {
     if (strlen($password) < 8) {
         redirect_error('register.php', 'Password must be at least 8 characters.');
     }
+
+    // Enregistre avant l'insertion : une tentative sur un nom deja pris
+    // reste une inscription tentee depuis cette IP et doit compter.
+    record_registration($con, $ip);
 
     $query = "INSERT INTO users (username, password_hash, created_at) VALUES (?, ?, NOW())";
     $hash  = password_hash($password, PASSWORD_DEFAULT);

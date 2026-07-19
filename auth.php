@@ -167,3 +167,64 @@ function login_lockout_minutes($con, $username, $ip) {
     // pas un « reessayez dans 0 minute ».
     return max((int) $row['remaining'], 1);
 }
+
+
+// --- Limitation des inscriptions ------------------------------------------
+
+// Fenetre plus large que pour le login : creer un compte est un geste rare,
+// une salve de creations sur une heure est deja anormale.
+const REGISTER_WINDOW_MINUTES = 60;
+// Par IP seule : chaque compte cree porte un nom different, il n'y a pas
+// d'axe « par compte » a surveiller ici.
+const REGISTER_MAX_PER_IP = 5;
+
+function record_registration($con, $ip) {
+    $stmt = mysqli_prepare($con, "INSERT INTO registration_attempts (ip, attempted_at) VALUES (?, NOW())");
+    if (!$stmt) {
+        error_log('Prepare failed (record_registration): ' . mysqli_error($con));
+        return;
+    }
+    mysqli_stmt_bind_param($stmt, 's', $ip);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
+}
+
+function purge_old_registration_attempts($con) {
+    if (random_int(1, 100) !== 1) {
+        return;
+    }
+    mysqli_query($con, "DELETE FROM registration_attempts
+        WHERE attempted_at < DATE_SUB(NOW(), INTERVAL " . REGISTER_WINDOW_MINUTES . " MINUTE)");
+}
+
+// Renvoie le nombre de minutes de blocage restantes, ou 0 si l'inscription
+// est autorisee. Meme calcul cote SQL que pour le login, pour les memes
+// raisons de fuseau.
+function registration_lockout_minutes($con, $ip) {
+    $query = "SELECT
+                COUNT(*) AS by_ip,
+                CEIL(TIMESTAMPDIFF(SECOND, NOW(),
+                     MIN(attempted_at) + INTERVAL " . REGISTER_WINDOW_MINUTES . " MINUTE) / 60) AS remaining
+              FROM registration_attempts
+              WHERE ip = ?
+                AND attempted_at > DATE_SUB(NOW(), INTERVAL " . REGISTER_WINDOW_MINUTES . " MINUTE)";
+    $stmt = mysqli_prepare($con, $query);
+    if (!$stmt) {
+        error_log('Prepare failed (registration_lockout_minutes): ' . mysqli_error($con));
+        // En cas de panne du compteur, on laisse passer plutot que de bloquer
+        // toute inscription.
+        return 0;
+    }
+    mysqli_stmt_bind_param($stmt, 's', $ip);
+    mysqli_stmt_execute($stmt);
+    $row = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
+    mysqli_stmt_close($stmt);
+
+    if (!$row || $row['remaining'] === null) {
+        return 0;
+    }
+    if ((int) $row['by_ip'] < REGISTER_MAX_PER_IP) {
+        return 0;
+    }
+    return max((int) $row['remaining'], 1);
+}
