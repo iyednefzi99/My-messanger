@@ -125,6 +125,85 @@
         }
     });
 
+    // --- Envoi sans rechargement ------------------------------------------
+    // Le formulaire reste un formulaire : sans JavaScript, il poste et la
+    // page se recharge comme avant. On n'intercepte que si tout est present.
+
+    var form = document.querySelector('#send form');
+    var input = form && form.querySelector('input[name="message"]');
+    var button = form && form.querySelector('.send-btn');
+
+    function showError(text) {
+        var box = document.querySelector('#send .error');
+        if (!box) {
+            box = document.createElement('div');
+            box.className = 'error';
+            form.parentNode.insertBefore(box, form);
+        }
+        box.textContent = text;
+    }
+
+    function clearError() {
+        var box = document.querySelector('#send .error');
+        if (box) {
+            box.remove();
+        }
+    }
+
+    if (form && input && button) {
+        var sending = false;
+
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+            if (sending || input.value.trim() === '') {
+                return;
+            }
+
+            sending = true;
+            button.disabled = true;
+
+            fetch('process.php', {
+                method: 'POST',
+                credentials: 'same-origin',
+                // Cet en-tete est ce qui distingue l'appel AJAX du post de
+                // formulaire cote serveur.
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body: new FormData(form)
+            })
+                .then(function (response) {
+                    if (response.status === 401) {
+                        window.location.href = 'login.php';
+                        return null;
+                    }
+                    return response.json().then(function (data) {
+                        if (!response.ok) {
+                            throw new Error(data.error || 'HTTP ' + response.status);
+                        }
+                        return data;
+                    });
+                })
+                .then(function (data) {
+                    if (!data || !data.message) {
+                        return;
+                    }
+                    clearError();
+                    input.value = '';
+                    // append() avance lastId, donc le prochain sondage ne
+                    // rapportera pas ce message une seconde fois.
+                    append([data.message]);
+                    pane.scrollTop = pane.scrollHeight;
+                })
+                .catch(function (err) {
+                    showError(err.message || 'Could not send the message.');
+                })
+                .then(function () {
+                    sending = false;
+                    button.disabled = false;
+                    input.focus();
+                });
+        });
+    }
+
     pane.scrollTop = pane.scrollHeight;
     schedule(POLL_MS);
 })();
